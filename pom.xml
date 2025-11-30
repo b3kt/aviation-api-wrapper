@@ -98,8 +98,6 @@
 			<scope>runtime</scope>
 		</dependency>
 
-
-
 		<!-- API Documentation -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -168,16 +166,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
 				<version>3.5.4</version>
 				<configuration>
-					<parallel>classes</parallel>
-					<threadCount>2</threadCount>
-					<reuseForks>true</reuseForks>
-					<printSummary>true</printSummary>
-					<trimStackTrace>true</trimStackTrace>
-					<useFile>false</useFile>
-					<disableXmlReport>true</disableXmlReport>
-					<redirectTestOutputToFile>false</redirectTestOutputToFile>
-					<trimStackTrace>true</trimStackTrace>
-					<rerunFailingTestsCount>0</rerunFailingTestsCount>
 					<includes>
 						<include>**/*Test.java</include>
 					</includes>

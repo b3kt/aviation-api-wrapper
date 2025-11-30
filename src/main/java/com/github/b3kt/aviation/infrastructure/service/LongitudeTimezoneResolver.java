@@ -3,6 +3,7 @@ package com.github.b3kt.aviation.infrastructure.service;
 import com.github.b3kt.aviation.domain.service.TimezoneResolver;
 import com.github.b3kt.aviation.infrastructure.config.CacheConfiguration;
 
+import lombok.RequiredArgsConstructor;
 import net.iakovlev.timeshape.TimeZoneEngine;
 
 import org.springframework.cache.annotation.Cacheable;
@@ -18,9 +19,10 @@ import java.util.Optional;
  * provides a valid timezone offset.
  */
 @Service
+@RequiredArgsConstructor
 public class LongitudeTimezoneResolver implements TimezoneResolver {
 
-    private final TimeZoneEngine ENGINE = TimeZoneEngine.initialize();
+    private final TimeZoneEngine timeZoneEngine;
 
     /**
      * Returns the timezone for the given coordinates.
@@ -30,7 +32,7 @@ public class LongitudeTimezoneResolver implements TimezoneResolver {
      * @return ZoneId representing the timezone
      */
     private ZoneId getZoneId(BigDecimal latitude, BigDecimal longitude) {
-        Optional<ZoneId> zone = ENGINE.query(
+        Optional<ZoneId> zone = timeZoneEngine.query(
                 latitude.doubleValue(),
                 longitude.doubleValue());
         return zone.orElse(ZoneId.of("UTC")); // fallback if unknown

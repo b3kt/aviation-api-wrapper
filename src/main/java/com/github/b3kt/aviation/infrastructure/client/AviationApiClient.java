@@ -101,6 +101,15 @@ public class AviationApiClient implements AviationDataPort {
         return parts.length > 0 ? parts[parts.length - 1] : "UNKNOWN";
     }
 
+    /**
+     * since the response is a json object with a single key-value pair, with
+     * dynamic key. we need to get as string and parse it
+     * 
+     * @param icaoCode icaoCode from query to get airport data from provider
+     *                 response
+     * @param response provider response
+     * @return airport domain object
+     */
     private Airport mapToDomain(String icaoCode, String response) {
         try {
             TypeReference<Map<String, List<AirportRecord>>> typeRef = new TypeReference<>() {
