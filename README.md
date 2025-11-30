@@ -1,23 +1,23 @@
 # Aviation API Wrapper
 
-Microservice berbasis Spring Boot untuk mengambil informasi bandara menggunakan kode ICAO dari [AviationAPI.com](https://aviationapi.com).
+Spring Boot-based microservice to retrieve airport information using ICAO codes from [AviationAPI.com](https://aviationapi.com).
 
-> 🚀 **Quick Start**: Ingin langsung mulai? Lihat [QUICK_START.md](QUICK_START.md) untuk panduan 5 menit!
+> 🚀 **Quick Start**: Want to start immediately? See [QUICK_START.md](QUICK_START.md) for a 5-minute guide!
 
 ## 📋 Overview
 
-Proyek ini adalah implementasi production-ready microservice yang menyediakan REST API untuk query informasi bandara berdasarkan kode ICAO 4 karakter. Dibangun dengan fokus pada **scalability**, **resilience**, dan **observability**.
+This project is a production-ready microservice implementation that provides a REST API to query airport information based on 4-character ICAO codes. It is built with a focus on **scalability**, **resilience**, and **observability**.
 
 ### Key Features
 
-- ✅ REST API endpoint untuk lookup airport by ICAO code
-- ✅ Integrasi dengan public aviation API (aviationapi.com)
-- ✅ Clean Architecture dengan 4 layer terpisah
-- ✅ Command-Executor Pattern untuk extensibility
+- ✅ REST API endpoint for airport lookup by ICAO code
+- ✅ Integration with public aviation API (aviationapi.com)
+- ✅ Clean Architecture with 4 distinct layers
+- ✅ Command-Executor Pattern for extensibility
 - ✅ Comprehensive resilience patterns (Circuit Breaker, Retry, Rate Limiter, Timeout)
-- ✅ High-performance caching dengan Caffeine
+- ✅ High-performance caching with Caffeine
 - ✅ Full observability (Logging, Metrics, Health Checks, Tracing)
-- ✅ Reactive non-blocking architecture dengan WebFlux
+- ✅ Reactive non-blocking architecture with WebFlux
 - ✅ OpenAPI/Swagger documentation
 - ✅ Comprehensive test coverage
 
@@ -25,9 +25,9 @@ Proyek ini adalah implementasi production-ready microservice yang menyediakan RE
 
 ## 🚀 Prerequisites
 
-- **Java 21** atau lebih tinggi
-- **Maven 3.9+** untuk build management
-- **Internet connectivity** untuk akses ke aviationapi.com
+- **Java 21** or higher
+- **Maven 3.9+** for build management
+- **Internet connectivity** for accessing aviationapi.com
 
 ---
 
@@ -46,10 +46,10 @@ cd aviation-api-wrapper
 mvn clean install
 ```
 
-Build akan:
-- Compile semua source code
-- Run semua unit & integration tests
-- Package aplikasi menjadi executable JAR
+The build will:
+- Compile all source code
+- Run all unit & integration tests
+- Package the application into an executable JAR
 
 **Expected output:**
 ```
@@ -90,12 +90,12 @@ docker-compose logs -f aviation-api
 docker-compose down
 ```
 
-Services yang akan running:
+Running services:
 - **Aviation API**: http://localhost:8080
 - **Prometheus**: http://localhost:9090
 - **Grafana**: http://localhost:3000 (admin/admin)
 
-Aplikasi akan start di **http://localhost:8080**
+The application will start at **http://localhost:8080**
 
 ---
 
@@ -115,20 +115,20 @@ mvn test -Dtest=AirportControllerIntegrationTest
 
 ### Test Coverage
 
-Proyek ini memiliki 3 level testing:
+This project has 3 levels of testing:
 
 1. **Unit Tests** - `GetAirportByIcaoCommandHandlerTest`
-   - Test command handler secara isolated
-   - Mock dependencies
+   - Tests command handler in isolation
+   - Mocks dependencies
 
 2. **Integration Tests** - `AviationApiClientTest`
-   - Test WebClient dengan MockWebServer
-   - Verify resilience patterns
+   - Tests WebClient using MockWebServer
+   - Verifies resilience patterns
 
 3. **End-to-End Tests** - `AirportControllerIntegrationTest`
    - Full Spring Boot context
-   - Test complete request flow
-   - Validate HTTP responses
+   - Tests complete request flow
+   - Validates HTTP responses
 
 ---
 
@@ -167,7 +167,7 @@ curl http://localhost:8080/api/v1/airports/KJFK
 
 **Error Responses:**
 - `400 Bad Request` - Invalid ICAO code format
-- `404 Not Found` - Airport tidak ditemukan
+- `404 Not Found` - Airport not found
 - `429 Too Many Requests` - Rate limit exceeded
 - `503 Service Unavailable` - Circuit breaker open (upstream API down)
 
@@ -186,7 +186,7 @@ curl http://localhost:8080/actuator/prometheus
 
 ### API Documentation
 
-Buka browser ke: **http://localhost:8080/swagger-ui.html**
+Open browser to: **http://localhost:8080/swagger-ui.html**
 
 ---
 
@@ -194,7 +194,7 @@ Buka browser ke: **http://localhost:8080/swagger-ui.html**
 
 ### Clean Architecture
 
-Proyek ini mengimplementasikan **Clean Architecture** dengan 4 layer yang terisolasi:
+This project implements **Clean Architecture** with 4 isolated layers:
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -219,31 +219,31 @@ Proyek ini mengimplementasikan **Clean Architecture** dengan 4 layer yang teriso
 ```
 
 **Benefits:**
-- **Testability**: Business logic dapat ditest tanpa dependencies eksternal
-- **Maintainability**: Perubahan di satu layer tidak affect layer lain
-- **Provider Independence**: Mudah swap aviation data provider
-- **Clear Boundaries**: Setiap layer punya single responsibility
+- **Testability**: Business logic can be tested without external dependencies
+- **Maintainability**: Changes in one layer do not affect others
+- **Provider Independence**: Easy to swap aviation data providers
+- **Clear Boundaries**: Each layer has a single responsibility
 
 ### Command-Executor Pattern
 
-Implementasi menggunakan **Command-Executor Pattern** untuk request handling:
+Implementation uses the **Command-Executor Pattern** for request handling:
 
-- **Command**: Immutable data object yang merepresentasikan intent
-- **CommandHandler**: Mengeksekusi business logic untuk specific command
-- **CommandExecutor**: Router yang mengirim command ke handler yang tepat
+- **Command**: Immutable data object representing an intent
+- **CommandHandler**: Executes business logic for a specific command
+- **CommandExecutor**: Router that dispatches commands to the appropriate handler
 
 **Benefits:**
-- **Extensibility**: Tambah fitur baru = buat command baru (Open/Closed Principle)
-- **Single Responsibility**: Setiap handler fokus pada satu use case
-- **Auditability**: Mudah tambah logging/metrics di sekitar command execution
-- **Testability**: Commands dan handlers dapat ditest independently
+- **Extensibility**: Add new feature = create new command (Open/Closed Principle)
+- **Single Responsibility**: Each handler focuses on one use case
+- **Auditability**: Easy to add logging/metrics around command execution
+- **Testability**: Commands and handlers can be tested independently
 
 ### Technology Choices
 
 | Technology | Purpose | Rationale |
 |-----------|---------|-----------|
-| **Spring WebFlux** | Reactive web framework | Non-blocking I/O untuk high throughput |
-| **Resilience4j** | Resilience patterns | Modern library dengan Spring integration |
+| **Spring WebFlux** | Reactive web framework | Non-blocking I/O for high throughput |
+| **Resilience4j** | Resilience patterns | Modern library with Spring integration |
 | **Caffeine** | Caching | High-performance in-memory cache |
 | **Micrometer** | Metrics & Tracing | Industry standard observability |
 | **Springdoc OpenAPI** | API Documentation | Auto-generate OpenAPI spec |
@@ -255,7 +255,7 @@ Implementasi menggunakan **Command-Executor Pattern** untuk request handling:
 
 ### Resilience Patterns
 
-Aplikasi ini mengimplementasikan multiple layers of resilience:
+The application implements multiple layers of resilience:
 
 #### 1. **Circuit Breaker**
 ```yaml
@@ -266,9 +266,9 @@ Configuration:
 - Half-open calls: 3
 ```
 
-**Purpose**: Mencegah cascading failures ketika upstream API down
-- Open state: Langsung reject request tanpa call API
-- Half-open state: Test jika API sudah recover
+**Purpose**: Prevents cascading failures when upstream API is down
+- Open state: Immediately reject request without calling API
+- Half-open state: Test if API has recovered
 - Closed state: Normal operation
 
 #### 2. **Retry Logic**
@@ -280,7 +280,7 @@ Configuration:
 - Don't retry: 400, 404 errors
 ```
 
-**Purpose**: Handle transient failures (network glitches, temporary unavailability)
+**Purpose**: Handles transient failures (network glitches, temporary unavailability)
 
 #### 3. **Rate Limiter**
 ```yaml
@@ -289,7 +289,7 @@ Configuration:
 - Timeout: 5 seconds to acquire permission
 ```
 
-**Purpose**: Protect upstream API dari overload, comply dengan rate limits
+**Purpose**: Protects upstream API from overload, complies with rate limits
 
 #### 4. **Timeout**
 ```yaml
@@ -298,7 +298,7 @@ Configuration:
 - Overall timeout: 10 seconds
 ```
 
-**Purpose**: Prevent indefinite waiting, free up resources quickly
+**Purpose**: Prevents indefinite waiting, frees up resources quickly
 
 #### 5. **Caching**
 ```yaml
@@ -308,11 +308,11 @@ Configuration:
 - Eviction: LRU (Least Recently Used)
 ```
 
-**Purpose**: Reduce load ke upstream API, improve response time
+**Purpose**: Reduces load on upstream API, improves response time
 
 ### Error Response Format
 
-Semua errors dikembalikan dalam format konsisten:
+All errors are returned in a consistent format:
 
 ```json
 {
@@ -328,11 +328,11 @@ Semua errors dikembalikan dalam format konsisten:
 | Scenario | Handling Strategy |
 |----------|-------------------|
 | Upstream API down | Circuit breaker opens → 503 response |
-| Transient network error | Retry dengan exponential backoff |
+| Transient network error | Retry with exponential backoff |
 | Invalid ICAO code | Immediate 400 response (no retry) |
 | Airport not found | 404 response (no retry) |
 | Timeout | Cancel request after 3s → retry or fail |
-| Rate limit hit | Queue request atau 429 response |
+| Rate limit hit | Queue request or 429 response |
 
 ---
 
@@ -340,9 +340,9 @@ Semua errors dikembalikan dalam format konsisten:
 
 ### Logging
 
-- **Structured logging** dengan SLF4J
+- **Structured logging** with SLF4J
 - **Trace context** included (traceId, spanId)
-- **Log levels**: INFO (default), DEBUG (untuk troubleshooting)
+- **Log levels**: INFO (default), DEBUG (for troubleshooting)
 
 **Sample log:**
 ```
@@ -351,7 +351,7 @@ Semua errors dikembalikan dalam format konsisten:
 
 ### Metrics
 
-Exposed via Prometheus format di `/actuator/prometheus`:
+Exposed via Prometheus format at `/actuator/prometheus`:
 - Request count & duration
 - Circuit breaker state
 - Cache hit/miss ratio
@@ -372,13 +372,13 @@ Returns:
 
 - **W3C Trace Context** propagation
 - **Brave** tracer implementation
-- Ready untuk export ke Zipkin/Jaeger
+- Ready to export to Zipkin/Jaeger
 
 ---
 
 ## 🔧 Configuration
 
-Key configuration properties di `application.yml`:
+Key configuration properties in `application.yml`:
 
 ```yaml
 # Server
@@ -398,7 +398,7 @@ resilience4j.circuitbreaker.instances.aviationApi:
   waitDurationInOpenState: 30s
 ```
 
-Untuk custom configuration, override via:
+To custom configuration, override via:
 - Environment variables
 - External `application.yml`
 - Command line arguments: `--server.port=9090`
@@ -407,29 +407,29 @@ Untuk custom configuration, override via:
 
 ## 🤖 AI-Generated Code Disclosure
 
-Berikut adalah bagian yang dibantu dengan AI tools dan telah direview/divalidasi:
+Below are the parts assisted by AI tools and have been reviewed/validated:
 
-### Fully AI-Generated (dengan review):
+### Fully AI-Generated (with review):
 - Boilerplate configuration classes (`WebClientConfiguration`, `CacheConfiguration`)
 - OpenAPI configuration setup
-- Test scaffolding dan mock data setup
-- Initial project structure dengan Maven dependencies
+- Test scaffolding and mock data setup
+- Initial project structure with Maven dependencies
 
 ### Human-Designed with AI Assistance:
 - Architecture decisions (Clean Architecture + Command Pattern)
 - Resilience patterns implementation
-- Business logic di command handlers
+- Business logic in command handlers
 - Error handling strategies
 - Domain model design
 
 ### Fully Human-Written:
 - Core business logic
 - Command validation logic
-- Integration dengan aviation API
-- Test scenarios dan assertions
-- Documentation dan README
+- Integration with aviation API
+- Test scenarios and assertions
+- Documentation and README
 
-**Catatan**: Semua code telah dipahami, ditest, dan divalidasi untuk production readiness.
+**Note**: All code has been understood, tested, and validated for production readiness.
 
 ---
 
@@ -467,9 +467,9 @@ aviation-api-wrapper/
 ## 🎯 Assignment Requirements Coverage
 
 ### ✅ Core Requirements
-- [x] Accept HTTP requests untuk fetch airport by ICAO
+- [x] Accept HTTP requests to fetch airport by ICAO
 - [x] Query aviation API (https://aviationapi.com)
-- [x] Clean response format dengan key airport info
+- [x] Clean response format with key airport info
 - [x] Handle upstream failures gracefully
 
 ### ✅ Scalability
@@ -479,7 +479,7 @@ aviation-api-wrapper/
 - [x] Efficient caching
 
 ### ✅ Resilience
-- [x] Retry logic dengan exponential backoff
+- [x] Retry logic with exponential backoff
 - [x] Circuit breaker implementation
 - [x] Fallback strategies
 - [x] Timeout handling
@@ -488,7 +488,7 @@ aviation-api-wrapper/
 ### ✅ Extensibility
 - [x] Not tightly coupled to provider
 - [x] Port/Adapter pattern
-- [x] Command pattern untuk new features
+- [x] Command pattern for new features
 
 ### ✅ Observability
 - [x] Structured logging
@@ -531,10 +531,10 @@ mvn clean test jacoco:report
 
 ## 📞 Support & Contact
 
-Untuk pertanyaan atau issues:
-- Check [assignment.md](assignment.md) untuk requirements
-- Review [walkthrough.md](walkthrough.md) untuk implementation details
-- Lihat logs di console untuk troubleshooting
+For questions or issues:
+- Check [assignment.md](assignment.md) for requirements
+- Review [walkthrough.md](walkthrough.md) for implementation details
+- Check console logs for troubleshooting
 
 ---
 
@@ -550,6 +550,6 @@ Untuk pertanyaan atau issues:
 
 Notes:
 - assignment.md is a scope for ai assisted development
-- walkthrough.md is an initial boilerplate implementation plan generated using Claude Sonnet 4.5 
+- walkthrough.md is an initial boilerplate implementation plan generated using Claude Sonnet 4.5
 
 **Built with ❤️ using Clean Architecture principles**

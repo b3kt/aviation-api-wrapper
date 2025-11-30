@@ -1,6 +1,6 @@
 # 🚀 Quick Start Guide
 
-Panduan cepat untuk menjalankan Aviation API dalam 5 menit!
+Quick guide to running the Aviation API in 5 minutes!
 
 ## Prerequisites Checklist
 
@@ -21,7 +21,7 @@ chmod +x build.sh
 mvn spring-boot:run
 ```
 
-**That's it!** API akan running di http://localhost:8080
+**That's it!** API will be running at http://localhost:8080
 
 ## Option 2: Docker (Easiest) 🐳
 
@@ -109,9 +109,8 @@ Check console output
 - Read full [README.md](README.md) for detailed documentation
 - Explore [assignment.md](assignment.md) for requirements
 - Check [walkthrough.md](walkthrough.md) for implementation details
-- Run tests: `mvn test` atau `./run-tests.sh`
+- Run tests: `mvn test` or `./run-tests.sh`
 
 ---
 
 **Need help?** Check the main README.md for comprehensive documentation.
-
