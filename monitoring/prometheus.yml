@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'aviation-api'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['aviation-api:8080']
+        labels:
+          application: 'aviation-api'
+          environment: 'docker'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
