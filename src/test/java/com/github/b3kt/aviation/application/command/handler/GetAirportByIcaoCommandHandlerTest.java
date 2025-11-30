@@ -2,6 +2,7 @@ package com.github.b3kt.aviation.application.command.handler;
 
 import com.github.b3kt.aviation.application.command.GetAirportByIcaoCommand;
 import com.github.b3kt.aviation.domain.exception.AirportNotFoundException;
+import com.github.b3kt.aviation.domain.exception.InvalidIcaoCodeException;
 import com.github.b3kt.aviation.domain.model.Airport;
 import com.github.b3kt.aviation.domain.port.AviationDataPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit tests for GetAirportByIcaoCommandHandler.
@@ -79,5 +81,11 @@ class GetAirportByIcaoCommandHandlerTest {
     void shouldReturnCommandType() {
         // When & Then
         assert handler.getCommandType().equals(GetAirportByIcaoCommand.class);
+    }
+
+    @Test
+    void shouldThrowProviderException_icaoNull() {
+        // Expect constructor validation to fail
+        assertThrows(InvalidIcaoCodeException.class, () -> new GetAirportByIcaoCommand(null));
     }
 }

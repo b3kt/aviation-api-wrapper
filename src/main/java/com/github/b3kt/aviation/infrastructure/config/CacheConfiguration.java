@@ -1,5 +1,6 @@
 package com.github.b3kt.aviation.infrastructure.config;
 
+import com.github.b3kt.aviation.infrastructure.config.properties.AviationApiProperties;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -17,10 +18,11 @@ import java.util.concurrent.TimeUnit;
 public class CacheConfiguration {
 
     public static final String AIRPORT_CACHE = "airports";
+    public static final String TIMEZONE_CACHE = "timezone";
 
     @Bean
     public CacheManager cacheManager(AviationApiProperties properties) {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager(AIRPORT_CACHE);
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager(AIRPORT_CACHE, TIMEZONE_CACHE);
         cacheManager.setCaffeine(caffeineCacheBuilder(properties));
         cacheManager.setAsyncCacheMode(true);
         return cacheManager;

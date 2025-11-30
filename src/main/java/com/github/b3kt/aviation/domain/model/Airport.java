@@ -2,13 +2,16 @@ package com.github.b3kt.aviation.domain.model;
 
 import java.math.BigDecimal;
 
+import com.github.b3kt.aviation.domain.exception.AirportNotFoundException;
+import com.github.b3kt.aviation.domain.exception.InvalidIcaoCodeException;
+
 /**
  * Domain entity representing an airport.
  * Immutable record ensuring data consistency.
  */
 public record Airport(
         String icaoCode,
-        String iataCode,
+        String faaCode,
         String name,
         String city,
         String country,
@@ -21,13 +24,13 @@ public record Airport(
      */
     public Airport {
         if (icaoCode == null || icaoCode.isBlank()) {
-            throw new IllegalArgumentException("ICAO code cannot be null or empty");
+            throw new AirportNotFoundException("ICAO code cannot be null or empty");
         }
         if (!icaoCode.matches("^[A-Z0-9]{4}$")) {
-            throw new IllegalArgumentException("ICAO code must be 4 alphanumeric characters");
+            throw new InvalidIcaoCodeException("ICAO code must be 4 alphanumeric characters");
         }
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Airport name cannot be null or empty");
+            throw new AirportNotFoundException("Airport name cannot be null or empty");
         }
     }
 

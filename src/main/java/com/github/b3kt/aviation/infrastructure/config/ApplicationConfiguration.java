@@ -3,6 +3,8 @@ package com.github.b3kt.aviation.infrastructure.config;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import com.github.b3kt.aviation.infrastructure.config.properties.AviationApiProperties;
+
 /**
  * Main configuration class to enable configuration properties.
  */

@@ -8,6 +8,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.codec.ClientCodecConfigurer;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.github.b3kt.aviation.infrastructure.config.properties.AviationApiProperties;
+
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
@@ -18,6 +21,7 @@ import java.util.concurrent.TimeUnit;
  * Configuration for WebClient with optimized settings for production use.
  */
 @Configuration
+@lombok.extern.slf4j.Slf4j
 public class WebClientConfiguration {
 
     @Bean
@@ -42,11 +46,33 @@ public class WebClientConfiguration {
                 .baseUrl(properties.baseUrl())
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .codecs(this::configureCodecs)
+                .filter(logRequest())
+                .filter(logResponse())
                 .build();
     }
 
     private void configureCodecs(ClientCodecConfigurer configurer) {
         // Increase buffer size for large responses
         configurer.defaultCodecs().maxInMemorySize(2 * 1024 * 1024); // 2MB
+    }
+
+    private org.springframework.web.reactive.function.client.ExchangeFilterFunction logRequest() {
+        return org.springframework.web.reactive.function.client.ExchangeFilterFunction
+                .ofRequestProcessor(clientRequest -> {
+                    log.debug("Request: {} {}", clientRequest.method(), clientRequest.url());
+                    clientRequest.headers()
+                            .forEach((name, values) -> values.forEach(value -> log.debug("{}={}", name, value)));
+                    return reactor.core.publisher.Mono.just(clientRequest);
+                });
+    }
+
+    private org.springframework.web.reactive.function.client.ExchangeFilterFunction logResponse() {
+        return org.springframework.web.reactive.function.client.ExchangeFilterFunction
+                .ofResponseProcessor(clientResponse -> {
+                    log.debug("Response Status: {}", clientResponse.statusCode());
+                    clientResponse.headers().asHttpHeaders()
+                            .forEach((name, values) -> values.forEach(value -> log.debug("{}={}", name, value)));
+                    return reactor.core.publisher.Mono.just(clientResponse);
+                });
     }
 }

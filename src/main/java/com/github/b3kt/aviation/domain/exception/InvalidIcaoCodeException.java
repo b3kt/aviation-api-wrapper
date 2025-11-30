@@ -1,9 +1,12 @@
 package com.github.b3kt.aviation.domain.exception;
 
+import lombok.Getter;
+
 /**
  * Exception thrown when an invalid ICAO code is provided.
  * This is a domain-level validation exception that will be mapped to HTTP 400.
  */
+@Getter
 public class InvalidIcaoCodeException extends RuntimeException {
 
     private final String icaoCode;
@@ -13,7 +16,4 @@ public class InvalidIcaoCodeException extends RuntimeException {
         this.icaoCode = icaoCode;
     }
 
-    public String getIcaoCode() {
-        return icaoCode;
-    }
 }

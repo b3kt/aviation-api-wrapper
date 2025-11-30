@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AirportResponse(
         String icaoCode,
-        String iataCode,
+        String faaCode,
         String name,
         String city,
         String country,
@@ -42,7 +42,7 @@ public record AirportResponse(
 
         return new AirportResponse(
                 airport.icaoCode(),
-                airport.iataCode(),
+                airport.faaCode(),
                 airport.name(),
                 airport.city(),
                 airport.country(),

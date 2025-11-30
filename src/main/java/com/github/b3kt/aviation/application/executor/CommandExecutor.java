@@ -35,7 +35,6 @@ public class CommandExecutor {
      * @param <R>     the response type
      * @return Mono emitting the response
      */
-    @SuppressWarnings("unchecked")
     public <R> Mono<R> execute(Command<R> command) {
         log.debug("Executing command: {}", command.getClass().getSimpleName());
 

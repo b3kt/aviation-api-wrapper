@@ -26,7 +26,7 @@ public class OpenApiConfiguration {
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("API Support")
-                                .email("support@example.com"))
+                                .email("subekti.cahyo@hotmail.com"))
                         .license(new License()
                                 .name("Apache 2.0")
                                 .url("https://www.apache.org/licenses/LICENSE-2.0")))

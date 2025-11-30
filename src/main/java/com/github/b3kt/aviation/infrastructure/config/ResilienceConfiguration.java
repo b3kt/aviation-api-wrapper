@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import com.github.b3kt.aviation.infrastructure.config.properties.AviationApiProperties;
+
 import java.time.Duration;
 
 /**

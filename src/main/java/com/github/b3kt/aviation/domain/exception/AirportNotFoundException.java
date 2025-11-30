@@ -1,10 +1,13 @@
 package com.github.b3kt.aviation.domain.exception;
 
+import lombok.Getter;
+
 /**
  * Exception thrown when an airport cannot be found by ICAO code.
  * This is a domain-level exception that will be mapped to HTTP 404 in the
  * presentation layer.
  */
+@Getter
 public class AirportNotFoundException extends RuntimeException {
 
     private final String icaoCode;
@@ -14,7 +17,4 @@ public class AirportNotFoundException extends RuntimeException {
         this.icaoCode = icaoCode;
     }
 
-    public String getIcaoCode() {
-        return icaoCode;
-    }
 }

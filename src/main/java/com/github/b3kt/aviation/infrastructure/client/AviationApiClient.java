@@ -2,10 +2,16 @@ package com.github.b3kt.aviation.infrastructure.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.b3kt.aviation.application.helper.CoordinateHelper;
 import com.github.b3kt.aviation.domain.exception.AirportNotFoundException;
 import com.github.b3kt.aviation.domain.model.Airport;
 import com.github.b3kt.aviation.domain.port.AviationDataPort;
+import com.github.b3kt.aviation.domain.service.TimezoneResolver;
 import com.github.b3kt.aviation.infrastructure.config.CacheConfiguration;
+import com.github.b3kt.aviation.infrastructure.config.properties.AviationApiProperties;
+
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
@@ -22,6 +28,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of AviationDataPort using WebClient to integrate with aviation
@@ -39,16 +47,24 @@ public class AviationApiClient implements AviationDataPort {
     private final CircuitBreakerRegistry circuitBreakerRegistry;
     private final RetryRegistry retryRegistry;
     private final RateLimiterRegistry rateLimiterRegistry;
+    private final AviationApiProperties aviationApiProperties;
+    private final ObjectMapper objectMapper;
+    private final TimezoneResolver timezoneResolver;
 
     public AviationApiClient(
             WebClient webClient,
             CircuitBreakerRegistry circuitBreakerRegistry,
             RetryRegistry retryRegistry,
-            RateLimiterRegistry rateLimiterRegistry) {
+            RateLimiterRegistry rateLimiterRegistry,
+            AviationApiProperties aviationApiProperties,
+            ObjectMapper objectMapper, TimezoneResolver timezoneResolver) {
         this.webClient = webClient;
         this.circuitBreakerRegistry = circuitBreakerRegistry;
         this.retryRegistry = retryRegistry;
         this.rateLimiterRegistry = rateLimiterRegistry;
+        this.aviationApiProperties = aviationApiProperties;
+        this.objectMapper = objectMapper;
+        this.timezoneResolver = timezoneResolver;
     }
 
     @Override
@@ -57,10 +73,12 @@ public class AviationApiClient implements AviationDataPort {
         log.info("Fetching airport data for ICAO: {}", icaoCode);
 
         return webClient.get()
-                .uri("/airports/{icao}", icaoCode)
+                .uri(uriBuilder -> uriBuilder.path(aviationApiProperties.paths().get("airports"))
+                        .queryParam("apt", icaoCode)
+                        .build())
                 .retrieve()
-                .bodyToMono(AviationApiResponse.class)
-                .map(this::mapToDomain)
+                .bodyToMono(String.class)
+                .map(response -> this.mapToDomain(icaoCode, response))
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreakerRegistry.circuitBreaker(AVIATION_API)))
                 .transformDeferred(RetryOperator.of(retryRegistry.retry(AVIATION_API)))
                 .transformDeferred(RateLimiterOperator.of(rateLimiterRegistry.rateLimiter(AVIATION_API)))
@@ -83,33 +101,82 @@ public class AviationApiClient implements AviationDataPort {
         return parts.length > 0 ? parts[parts.length - 1] : "UNKNOWN";
     }
 
-    private Airport mapToDomain(AviationApiResponse response) {
-        return new Airport(
-                response.icao(),
-                response.iata(),
-                response.name(),
-                response.city(),
-                response.country(),
-                response.latitude() != null ? new BigDecimal(response.latitude()) : null,
-                response.longitude() != null ? new BigDecimal(response.longitude()) : null,
-                response.timezone(),
-                response.elevation());
+    private Airport mapToDomain(String icaoCode, String response) {
+        try {
+            TypeReference<Map<String, List<AirportRecord>>> typeRef = new TypeReference<>() {
+            };
+            Map<String, List<AirportRecord>> dynamicResult = objectMapper.readValue(response, typeRef);
+            AirportRecord airportRecord = dynamicResult.get(icaoCode).getFirst();
+            BigDecimal latitude = CoordinateHelper.parseFromSeconds(airportRecord.latitudeSec());
+            BigDecimal longitude = CoordinateHelper.parseFromSeconds(airportRecord.longitudeSec());
+            return new Airport(
+                    airportRecord.icaoIdent(),
+                    airportRecord.faaIdent(),
+                    airportRecord.facilityName(),
+                    airportRecord.city(),
+                    airportRecord.country(),
+                    latitude,
+                    longitude,
+                    timezoneResolver.resolve(latitude, longitude),
+                    Integer.parseInt(airportRecord.elevation()));
+        } catch (Exception e) {
+            log.error("Error mapping response to domain: {}", e.getMessage());
+            return new Airport("", "", "", "", "", null, null, null, null);
+        }
     }
 
     /**
-     * DTO for aviation API response.
-     * Ignores unknown properties for forward compatibility.
-     */
+     * Record representing a single airport from the API response.
+     * the attributes are refers to the API specification from @link
+     * <a href="https://docs.aviationapi.com/#tag/airports">...</a>
+     **/
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record AviationApiResponse(
-            @JsonProperty("icao") String icao,
-            @JsonProperty("iata") String iata,
-            @JsonProperty("name") String name,
+    record AirportRecord(
+            @JsonProperty("site_number") String siteNumber,
+            @JsonProperty("type") String type,
+            @JsonProperty("facility_name") String facilityName,
+            @JsonProperty("faa_ident") String faaIdent,
+            @JsonProperty("icao_ident") String icaoIdent,
+            @JsonProperty("region") String region,
+            @JsonProperty("district_office") String districtOffice,
+            @JsonProperty("state") String state,
+            @JsonProperty("state_full") String stateFull,
+            @JsonProperty("county") String country,
             @JsonProperty("city") String city,
-            @JsonProperty("country") String country,
-            @JsonProperty("lat") String latitude,
-            @JsonProperty("lon") String longitude,
-            @JsonProperty("timezone") String timezone,
-            @JsonProperty("elevation") Integer elevation) {
+            @JsonProperty("ownership") String ownership,
+            @JsonProperty("use") String use,
+            @JsonProperty("manager") String manager,
+            @JsonProperty("manager_phone") String managerPhone,
+            @JsonProperty("latitude") String latitude,
+            @JsonProperty("latitude_sec") String latitudeSec,
+            @JsonProperty("longitude") String longitude,
+            @JsonProperty("longitude_sec") String longitudeSec,
+            @JsonProperty("elevation") String elevation,
+            @JsonProperty("magnetic_variation") String magneticVariation,
+            @JsonProperty("tpa") String tpa,
+            @JsonProperty("vfr_sectional") String vfrSectional,
+            @JsonProperty("boundary_artcc") String boundaryArtcc,
+            @JsonProperty("boundary_artcc_name") String boundaryArtccName,
+            @JsonProperty("responsible_artcc") String responsibleArtcc,
+            @JsonProperty("responsible_artcc_name") String responsibleArtccName,
+            @JsonProperty("fss_phone_number") String fssPhoneNumber,
+            @JsonProperty("fss_phone_numer_tollfree") String fssPhoneNumberTollfree,
+            @JsonProperty("notam_facility_ident") String notamFacilityIdent,
+            @JsonProperty("status") String status,
+            @JsonProperty("certification_typedate") String certificationTypedate,
+            @JsonProperty("customs_airport_of_entry") String customsAirportOfEntry,
+            @JsonProperty("military_joint_use") String militaryJointUse,
+            @JsonProperty("military_landing") String militaryLanding,
+            @JsonProperty("lighting_schedule") String lightingSchedule,
+            @JsonProperty("beacon_schedule") String beaconSchedule,
+            @JsonProperty("control_tower") String controlTower,
+            @JsonProperty("unicom") String unicom,
+            @JsonProperty("ctaf") String ctaf,
+            @JsonProperty("effective_date") String effectiveDate) {
+    }
+
+    @JsonIgnoreProperties
+    public record AirportResponse(
+            Map<String, List<AirportRecord>> airports) {
     }
 }
